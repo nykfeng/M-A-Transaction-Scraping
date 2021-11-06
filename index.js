@@ -11,10 +11,9 @@ const { verify } = require("crypto");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const app = express();
-const PORT = process.env.port || 8000;
+const PORT = process.env.PORT || 8000;
 
 app.use(express.static("public"));
-// app.set("view engine", "ejs");
 
 const indexPage = fs.readFileSync(`${__dirname}/public/M&A.html`, "utf-8");
 const transactionTemp = fs.readFileSync(
@@ -25,62 +24,6 @@ const transactionTemp = fs.readFileSync(
 let businesswireURL =
   "https://www.businesswire.com/portal/site/home/news/subject/?vnsId=31333";
 const businesswireArr = [];
-
-let withinToday = true;
-
-// while (withinToday) {
-
-// const businesswireScraping = function () {
-//   axios(businesswireURL)
-//     .then((response) => {
-//       const html = response.data;
-//       const $ = cheerio.load(html);
-//       const lngDetector = new languageDetect();
-
-//       $(".bwNewsList li", html).each(function () {
-//         // Targeting the HTML element containing each article
-//         let transactionTitle = $(this)
-//           .find("span[itemprop*='headline']")
-//           .text();
-//         let transactionUrl =
-//           "businesswire.com" + $(this).find("a").attr("href");
-//         let transactionDate = getDate(
-//           new Date($(this).find("time").attr("datetime"))
-//         );
-
-//         // Since these websites default to show articles of the latest date (Today)
-//         // So as it goes through and finds a date not matching the current date (Yesterday)
-//         // if (transactionDate != getDate(new Date())) {
-//         //   withinToday = false;
-//         //   return;
-//         // }
-
-//         let titleLanguage =
-//           lngDetector.detect(transactionTitle).length === 0
-//             ? "Foreign"
-//             : lngDetector.detect(transactionTitle)[0][0];
-//         console.log(titleLanguage);
-
-//         if (titleLanguage === "english") {
-//           // We are only interested in English articles
-//           businesswireArr.push({
-//             transactionTitle,
-//             transactionUrl,
-//             transactionDate,
-//           });
-//         }
-//       });
-
-//       console.log(businesswireArr);
-
-//       // Set the url to next page's URL
-//       businesswireURL = `businesswire.com${$("#paging .pagingNext")
-//         .find("a")
-//         .attr("href")}`;
-//       console.log(businesswireURL);
-//     })
-//     .catch((err) => console.log(err));
-// };
 
 const getDate = function (date) {
   const day = date.getDate();
@@ -117,13 +60,6 @@ const processHTML = async function (response) {
         ? "Foreign"
         : lngDetector.detect(transactionTitle)[0][0];
 
-    // Since these websites default to show articles of the latest date (Today)
-    // So as it goes through and finds a date not matching the current date (Yesterday)
-    // if (transactionDate != getDate(new Date())) {
-    //   withinToday = false;
-    //   return;
-    // }
-
     // console.log("chosen date " + chosenDate);
     if (transactionDate === chosenDate) {
       foundChosenDate.foundDate = true;
@@ -143,11 +79,6 @@ const processHTML = async function (response) {
       foundChosenDate.finishDate = true;
     }
   });
-
-  // Set the url to next page's URL
-  // businesswireURL = `businesswire.com${$("#paging .pagingNext")
-  //   .find("a")
-  //   .attr("href")}`;
 
   businesswireURL = `https://businesswire.com${$("#paging .pagingNext a").attr(
     "href"
