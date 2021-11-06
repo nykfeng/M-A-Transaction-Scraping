@@ -140,7 +140,7 @@ app.get("/", function (req, res) {
   res.send(indexPage);
 });
 
-app.get(`${__dirname}/results`, async (req, res) => {
+app.get(`/results`, async (req, res) => {
   chosenDate =
     getDate(new Date(req.query.chosenDate?.replace(/-/g, ","))) ||
     getDate(new Date());
