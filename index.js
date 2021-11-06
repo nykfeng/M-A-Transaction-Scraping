@@ -140,7 +140,7 @@ app.get("/", function (req, res) {
   res.send(indexPage);
 });
 
-app.get(`/results`, async (req, res) => {
+app.get(`/results.html`, async (req, res) => {
   chosenDate =
     getDate(new Date(req.query.chosenDate?.replace(/-/g, ","))) ||
     getDate(new Date());
@@ -152,7 +152,7 @@ app.get(`/results`, async (req, res) => {
     output = await businesswireScraping();
 
     res.send(output);
-  } else res.send(indexPage);
+  } else res.sendFile(indexPage);
 });
 
 const resetVariable = function () {
