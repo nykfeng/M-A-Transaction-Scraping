@@ -112,7 +112,7 @@ const businesswireScraping = async function () {
   try {
     while (!foundChosenDate.finishDate) {
       response = await axios(businesswireURL);
-      nextPageURL = await processHTML(response);
+      businesswireURL = await processHTML(response);
     }
     // console.log(businesswireArr);
     const transHTML = businesswireArr
