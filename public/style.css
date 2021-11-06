@@ -1,0 +1,26 @@
+body {
+  margin: 5%;
+  max-width: 80%;
+}
+
+.transaction-box {
+  border-style: outset;
+}
+
+.transaction {
+  display: inline-block;
+}
+
+.transaction-title {
+  max-width: 700px;
+}
+
+.transaction-date {
+  float: right;
+}
+
+.transaction-image,
+img {
+  width: 50px;
+  height: auto;
+}

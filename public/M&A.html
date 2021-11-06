@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+
+    <title>M&A Daily Transaction List Board</title>
+  </head>
+  <body>
+    <header style="color: blue">This is the title !!</header>
+
+    <main>
+      <h1>this will be the main body</h1>
+      <div>
+        <form action="/results" method="get">
+          <label for="date"
+            >Get M&A transactions for a specific date. Default is today. Max
+            range 7 days prior.</label
+          >
+          <br />
+          <input type="date" id="startDate" name="chosenDate" />
+          <input type="submit" value="Go to results" />
+        </form>
+      </div>
+      <hr />
+
+      <div class="transaction-container">{%TRANS-TEMPLATE%}</div>
+    </main>
+  </body>
+</html>
