@@ -6,6 +6,7 @@ const fs = require("fs");
 const url = require("url");
 const languageDetect = require("languagedetect");
 const transactionTemplate = require("./modules/transactionTemplate.js");
+const helper = require("./modules/helper.js");
 const { createHook } = require("async_hooks");
 const { verify } = require("crypto");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -14,6 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 app.use(express.static("public"));
+app.use(express.urlencoded({ extended: false }));
 
 const indexPage = fs.readFileSync(`${__dirname}/public/M&A.html`, "utf-8");
 const transactionTemp = fs.readFileSync(
@@ -25,16 +27,9 @@ let businesswireURL =
   "https://www.businesswire.com/portal/site/home/news/subject/?vnsId=31333";
 const businesswireArr = [];
 
-const getDate = function (date) {
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
+let chosenDate = helper.getDate(new Date()); // Default the date to be today
 
-  return `${month}/${day}/${year}`;
-};
-
-let chosenDate = getDate(new Date());
-console.log(`chosen date at creation is ${chosenDate}`);
+// This is used to find if the algo reached the desired date and finished going thru the same date
 const foundChosenDate = {
   foundDate: false,
   finishDate: false,
@@ -50,17 +45,23 @@ const processHTML = async function (response) {
     let transactionTitle = $(this).find("span[itemprop*='headline']").text();
     let transactionUrl =
       "https://businesswire.com" + $(this).find("a").attr("href");
-    let transactionDate = getDate(
+    let transactionDate = helper.getDate(
       new Date($(this).find("time").attr("datetime"))
     );
-    let transactionImage =
-      $(this).find(".bwThumbs img").attr("src") || "NO IMAGE";
+    let transactionImage = $(this).find(".bwThumbs img").attr("src") || "";
     let titleLanguage =
       lngDetector.detect(transactionTitle).length === 0
         ? "Foreign"
         : lngDetector.detect(transactionTitle)[0][0];
 
     // console.log("chosen date " + chosenDate);
+
+    if (
+      new Date(transactionDate) - new Date(chosenDate) < 0 &&
+      foundChosenDate.foundDate === false
+    ) {
+      foundChosenDate.finishDate = true;
+    }
     if (transactionDate === chosenDate) {
       foundChosenDate.foundDate = true;
       if (titleLanguage === "english") {
@@ -73,44 +74,28 @@ const processHTML = async function (response) {
         });
       }
     } else if (
-      transactionDate != chosenDate &&
+      // transactionDate != chosenDate &&
+      new Date(transactionDate) - new Date(chosenDate) < 0 &&
       foundChosenDate.foundDate === true
     ) {
       foundChosenDate.finishDate = true;
     }
   });
 
-  businesswireURL = `https://businesswire.com${$("#paging .pagingNext a").attr(
-    "href"
-  )}`;
+  businesswireURL = `https://businesswire.com${
+    $("#paging .pagingNext a").attr("href") || ""
+  }`;
   return businesswireURL;
 };
 let output;
-// const businesswireScraping = async function () {
-//   try {
-//     let response = await axios(businesswireURL);
-//     let nextPageURL = await processHTML(response);
-//     response = await axios(nextPageURL);
-//     nextPageURL = await processHTML(response);
-//     response = await axios(nextPageURL);
-//     nextPageURL = await processHTML(response);
-//     // console.log(businesswireArr);
-//     const transHTML = businesswireArr
-//       .map((el) => transactionTemplate(transactionTemp, el))
-//       .join("");
-//     output = indexPage.replace("{%TRANS-TEMPLATE%}", transHTML);
-//   } catch (err) {
-//     console.log(err);
-//     throw err;
-//   }
-// };
 
 let response;
 let nextPageURL;
 
-const businesswireScraping = async function () {
+const scraping = async function () {
   try {
     while (!foundChosenDate.finishDate) {
+      // console.log(businesswireURL);
       response = await axios(businesswireURL);
       businesswireURL = await processHTML(response);
     }
@@ -125,12 +110,6 @@ const businesswireScraping = async function () {
   }
 };
 
-const verifyDate = function (enteredDate) {
-  const dateDiff = (new Date() - new Date(enteredDate)) / (1000 * 3600 * 24);
-  if (dateDiff >= 0 && dateDiff <= 7) return true;
-  else return false;
-};
-
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
 });
@@ -140,19 +119,24 @@ app.get("/", function (req, res) {
   res.send(indexPage);
 });
 
-app.get(`/results.html`, async (req, res) => {
+app.get("/results", async (req, res) => {
   chosenDate =
-    getDate(new Date(req.query.chosenDate?.replace(/-/g, ","))) ||
-    getDate(new Date());
+    helper.getDate(new Date(req.query.chosenDate?.replace(/-/g, ","))) ||
+    helper.getDate(new Date());
 
-  if (verifyDate(chosenDate)) {
-    // console.log(`chosenDate is T/F: ${verifyDate(chosenDate)}`);
+  if (helper.verifyDate(chosenDate)) {
+    // console.log(`chosenDate is T/F: ${helper.verifyDate(chosenDate)}`);
     // console.log(`chosen date after post request is ${chosenDate}`);
+
     resetVariable();
-    output = await businesswireScraping();
+    // console.log(businesswireArr);
+    // console.log(output);
+    // console.log(businesswireURL);
+    // console.log(foundChosenDate);
+    output = await scraping();
 
     res.send(output);
-  } else res.sendFile(indexPage);
+  } else res.send(indexPage);
 });
 
 const resetVariable = function () {
@@ -163,9 +147,6 @@ const resetVariable = function () {
   foundChosenDate.foundDate = false;
   foundChosenDate.finishDate = false;
 };
-// app.post("/", urlencodedParser, function (req, res) {
-//   console.log(req.body);
-// });
 
 // console.log(`Doing replace ${req.query.chosenDate.replace(/-/g, ",")}`);
 // console.log(`chosen date before converting ${req.query.chosenDate}`);

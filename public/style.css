@@ -9,6 +9,11 @@ body {
 
 .transaction {
   display: inline-block;
+  min-width: 50px;
+}
+
+.banner {
+  max-width: 80%;
 }
 
 .transaction-title {
@@ -19,8 +24,7 @@ body {
   float: right;
 }
 
-.transaction-image,
-img {
+.transaction-image {
   width: 50px;
   height: auto;
 }
