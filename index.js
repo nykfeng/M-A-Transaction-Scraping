@@ -7,6 +7,8 @@ const url = require("url");
 const languageDetect = require("languagedetect");
 const transactionTemplate = require("./modules/transactionTemplate.js");
 const helper = require("./modules/helper.js");
+const utilities = require("./modules/utilities.js");
+const processHtml = require("./modules/processHtml.js");
 const { createHook } = require("async_hooks");
 const { verify } = require("crypto");
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -23,87 +25,25 @@ const transactionTemp = fs.readFileSync(
   "utf-8"
 );
 
-let businesswireURL =
-  "https://www.businesswire.com/portal/site/home/news/subject/?vnsId=31333";
-const businesswireArr = [];
+const scraping = async function (websiteUrl, processingFunction) {
+  let response;
+  let nextPageURL = websiteUrl;
+  utilities.foundChosenDate.finishDate = false;
+  // Empty this data storage array each time a new website is visited
 
-let chosenDate = helper.getDate(new Date()); // Default the date to be today
-
-// This is used to find if the algo reached the desired date and finished going thru the same date
-const foundChosenDate = {
-  foundDate: false,
-  finishDate: false,
-};
-
-const processHTML = async function (response) {
-  const html = response.data;
-  const $ = cheerio.load(html);
-  const lngDetector = new languageDetect();
-
-  $(".bwNewsList li", html).each(function () {
-    // Targeting the HTML element containing each article
-    let transactionTitle = $(this).find("span[itemprop*='headline']").text();
-    let transactionUrl =
-      "https://businesswire.com" + $(this).find("a").attr("href");
-    let transactionDate = helper.getDate(
-      new Date($(this).find("time").attr("datetime"))
-    );
-    let transactionImage = $(this).find(".bwThumbs img").attr("src") || "";
-    let titleLanguage =
-      lngDetector.detect(transactionTitle).length === 0
-        ? "Foreign"
-        : lngDetector.detect(transactionTitle)[0][0];
-
-    // console.log("chosen date " + chosenDate);
-
-    if (
-      new Date(transactionDate) - new Date(chosenDate) < 0 &&
-      foundChosenDate.foundDate === false
-    ) {
-      foundChosenDate.finishDate = true;
-    }
-    if (transactionDate === chosenDate) {
-      foundChosenDate.foundDate = true;
-      if (titleLanguage === "english") {
-        // We are only interested in English articles
-        businesswireArr.push({
-          transactionTitle,
-          transactionUrl,
-          transactionDate,
-          transactionImage,
-        });
-      }
-    } else if (
-      // transactionDate != chosenDate &&
-      new Date(transactionDate) - new Date(chosenDate) < 0 &&
-      foundChosenDate.foundDate === true
-    ) {
-      foundChosenDate.finishDate = true;
-    }
-  });
-
-  businesswireURL = `https://businesswire.com${
-    $("#paging .pagingNext a").attr("href") || ""
-  }`;
-  return businesswireURL;
-};
-let output;
-
-let response;
-let nextPageURL;
-
-const scraping = async function () {
+  utilities.dataResults.splice(0, utilities.dataResults.length);
   try {
-    while (!foundChosenDate.finishDate) {
-      // console.log(businesswireURL);
-      response = await axios(businesswireURL);
-      businesswireURL = await processHTML(response);
+    while (!utilities.foundChosenDate.finishDate) {
+      console.log(nextPageURL);
+      response = await axios(nextPageURL);
+      nextPageURL = await processingFunction(response);
     }
     // console.log(businesswireArr);
-    const transHTML = businesswireArr
+
+    utilities.transactionCount += utilities.dataResults.length;
+    return utilities.dataResults
       .map((el) => transactionTemplate(transactionTemp, el))
       .join("");
-    return indexPage.replace("{%TRANS-TEMPLATE%}", transHTML);
   } catch (err) {
     console.log(err);
     throw err;
@@ -115,38 +55,45 @@ app.listen(PORT, () => {
 });
 
 app.get("/", function (req, res) {
-  // res.writeHead(200, { "content-type": "text/html" });
   res.send(indexPage);
 });
 
 app.get("/results", async (req, res) => {
-  chosenDate =
-    helper.getDate(new Date(req.query.chosenDate?.replace(/-/g, ","))) ||
-    helper.getDate(new Date());
+  utilities.chosenDate = helper.getDate(
+    req.query.chosenDate.length != 0
+      ? new Date(req.query.chosenDate.replace(/-/g, ","))
+      : new Date()
+  );
 
-  if (helper.verifyDate(chosenDate)) {
-    // console.log(`chosenDate is T/F: ${helper.verifyDate(chosenDate)}`);
-    // console.log(`chosen date after post request is ${chosenDate}`);
+  if (helper.verifyDate(utilities.chosenDate)) {
+    helper.resetVariable();
+    utilities.transactionTile.push(
+      await scraping(utilities.prnewswireUrl, processHtml.prnewswire)
+    );
+    utilities.transactionTile.push(
+      await scraping(utilities.businesswireUrl, processHtml.businesswire)
+    );
+    utilities.transactionTile.push(
+      await scraping(utilities.globenewswireUrl, processHtml.globenewswire)
+    );
 
-    resetVariable();
-    // console.log(businesswireArr);
-    // console.log(output);
-    // console.log(businesswireURL);
-    // console.log(foundChosenDate);
-    output = await scraping();
-
-    res.send(output);
-  } else res.send(indexPage);
+    if (utilities.dataResults.length === 0) {
+      res.send(indexPage.replace("{%TRANS-TEMPLATE%}", "<h1>No Results</h1>"));
+    } else {
+      console.log(
+        `Total number of transaction for the date is ${utilities.transactionCount}`
+      );
+      utilities.output = indexPage.replace(
+        "{%TRANS-TEMPLATE%}",
+        utilities.transactionTile.join("")
+      );
+      utilities.output = utilities.output.replace(
+        "{%TRANS-NUMBER%}",
+        utilities.transactionCount
+      );
+      res.send(utilities.output);
+    }
+  } else {
+    res.send(indexPage.replace("{%TRANS-TEMPLATE%}", "<h1>Invalid Date</h1>"));
+  }
 });
-
-const resetVariable = function () {
-  businesswireArr.splice(0, businesswireArr.length); // Empty the array each run
-  output = "";
-  businesswireURL =
-    "https://www.businesswire.com/portal/site/home/news/subject/?vnsId=31333";
-  foundChosenDate.foundDate = false;
-  foundChosenDate.finishDate = false;
-};
-
-// console.log(`Doing replace ${req.query.chosenDate.replace(/-/g, ",")}`);
-// console.log(`chosen date before converting ${req.query.chosenDate}`);
