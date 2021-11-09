@@ -63,6 +63,8 @@ const globenewswire = async function (response) {
     "Dimensional Fund Advisors Ltd",
     "Investec Wealth & Investment Limited",
     "Proactive",
+    "Fortune Business Insights",
+    "Market Research Future",
   ];
 
   $(".pagnition-row", html).each(function () {
@@ -108,11 +110,14 @@ const globenewswire = async function (response) {
           transactionImage,
         });
       }
-    } else if (
+    }
+    // If transaction date is older than chosen date, so the program has gone through all necessary transactions
+    // If foundDate is true, it means it has found the chosen date transactions
+    else if (
       new Date(transactionDate) - new Date(utilities.chosenDate) < 0 &&
       utilities.foundChosenDate.foundDate === true
     ) {
-      utilities.foundChosenDate.finishDate = true;
+      utilities.foundChosenDate.finishDate = true; // Used to break out of the while loop when condition breaks
     }
   });
   nextPageUrl = `https://www.globenewswire.com${
@@ -132,9 +137,13 @@ const prnewswire = async function (response) {
     let transactionUrl = `https://www.prnewswire.com${$(this)
       .find(".newsreleaseconsolidatelink")
       .attr("href")}`;
-    let transactionDate = helper.getDate(
-      new Date(helper.fixDateString($(this).find(".card h3 > small").text()))
+    let transactionDate = $(this).find(".card h3 > small").text();
+    transactionDate = helper.getDate(
+      transactionDate.length < 10
+        ? new Date()
+        : new Date(helper.fixDateString(transactionDate))
     );
+
     let transactionImage = $(this).find(".card img").attr("src") || "";
 
     // console.log(`transactionTitle: ${transactionTitle}`);
@@ -167,7 +176,7 @@ const prnewswire = async function (response) {
       new Date(transactionDate) - new Date(utilities.chosenDate) < 0 &&
       utilities.foundChosenDate.foundDate === true
     ) {
-      utilities.foundChosenDate.finishDate = true;
+      utilities.foundChosenDate.finishDate = true; // Used to break out of the while loop when condition breaks
     }
   });
   nextPageUrl = `https://www.prnewswire.com/news-releases/financial-services-latest-news/acquisitions-mergers-and-takeovers-list/${
