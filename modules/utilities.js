@@ -16,6 +16,7 @@ const foundChosenDate = {
 };
 const dataResults = []; //To store transaction title, url, date, image
 const transactionTile = []; // To store display tiel HTML
+let jsonFile = [];
 
 module.exports = {
   businesswireUrl,
@@ -28,4 +29,5 @@ module.exports = {
   dataResults,
   transactionTile,
   output,
+  jsonFile,
 };

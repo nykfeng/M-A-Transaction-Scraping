@@ -38,11 +38,12 @@ const scraping = async function (websiteUrl, processingFunction) {
 
   try {
     while (!utilities.foundChosenDate.finishDate) {
-      // console.log(nextPageURL);
+      console.log(nextPageURL);
       response = await axios(nextPageURL);
       nextPageURL = await processingFunction(response);
     }
     // console.log(utilities.dataResults);
+    utilities.jsonFile.push(...utilities.dataResults);
 
     utilities.transactionCount += utilities.dataResults.length; // Counting the number of transactions
     return utilities.dataResults
@@ -104,9 +105,24 @@ app.get("/results", async (req, res) => {
         "{%TRANS-NUMBER%}",
         utilities.transactionCount
       );
+      fs.writeFileSync(
+        `${__dirname}/data.json`,
+        JSON.stringify(utilities.jsonFile),
+        (err) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+        }
+      );
       res.send(utilities.output);
     }
   } else {
     res.send(indexPage.replace("{%TRANS-TEMPLATE%}", "<h1>Invalid Date</h1>"));
   }
+});
+
+app.get("/results.json", (req, res) => {
+  const file = `${__dirname}/data.json`;
+  res.sendFile(file);
 });
