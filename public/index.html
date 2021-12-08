@@ -1,38 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="script.js" type="text/javascript" defer></script>
 
-    <title>M&A Daily Transaction List Board</title>
-  </head>
-  <body>
-    <header>
-      <img class="banner" src="images/M&ABanner.jpg" alt="M&ABanner" />
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" type="text/javascript" defer></script>
 
-    <main>
-      <h1>Source Websites</h1>
-      <ul>
-        <li>Businesswire.com</li>
-        <li>Globenewswire.com</li>
-        <li>PRnewswire.com</li>
-      </ul>
-      <div>
-        <form action="/results" method="GET">
-          <label for="date"
-            >Get M&A transactions for a specific date. Default is today. Max
-            range 7 days prior.</label
-          >
-          <br />
-          <input type="date" id="startDate" name="chosenDate" />
-          <input type="submit" value="Go to results" />
-        </form>
-      </div>
-      <hr />
-    </main>
-  </body>
+  <title>M&A Daily Transaction List</title>
+</head>
+
+<body>
+  <header>
+    <div class="title">M&A Transaction Scraping</div>
+  </header>
+
+  <main>
+    <h1>Source Websites</h1>
+    <ul>
+      <li><img class="site-logo"
+          src="https://s23.q4cdn.com/352890316/files/doc_downloads/press_kit/Business-Wire-Logo-Main-Navy.png" alt="""> Businesswire.com</li>
+      <li><img class=" site-logo filter-green" src="https://www.globenewswire.com/content/logo/white.svg" alt="">
+        Globenewswire.com
+      </li>
+      <li><img class=" site-logo"
+          src="https://www.prnewswire.com/content/dam/prnewswire/homepage/prn_cision_logo_desktop.png"
+          alt="pr newswire logo"> PRnewswire.com</li>
+    </ul>
+    <div>
+      <form action="/results" method="GET">
+        <label for="date">Get M&A transactions from a specific date. Default is today. Max
+          range 7 days prior.</label>
+        <br />
+        <input type="date" id="startDate" name="chosenDate" />
+        <input type="submit" value="Go to results" />
+      </form>
+    </div>
+    <hr />
+  </main>
+</body>
+
 </html>

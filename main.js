@@ -90,6 +90,10 @@ app.get("/results", async (req, res) => {
       await scraping(utilities.globenewswireUrl, processHtml.globenewswire)
     );
 
+    // utilities.transactionTile.push(
+    //   await scraping(utilities.biospaceUrl, processHtml.bioSpace)
+    // );
+
     // If the no results were found
     if (utilities.dataResults.length === 0) {
       res.send(indexPage.replace("{%TRANS-TEMPLATE%}", "<h1>No Results</h1>"));

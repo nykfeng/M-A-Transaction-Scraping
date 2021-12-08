@@ -185,4 +185,49 @@ const prnewswire = async function (response) {
   return nextPageUrl;
 };
 
+// const bioSpace = async function (response) {
+//   const html = response.data;
+//   const $ = cheerio.load(html);
+
+//   $(".articles li", html).each(() => {
+//     // console.log($(this));
+//     let transactionTitle = $(this).find("h3 a").text();
+//     let transactionUrl = $(this).find("a").attr("href");
+//     let transactionDate = $(this).find(".lister__article-date").text();
+//     let transactionImage = "";
+
+//     console.log(`transactionTitle is ${transactionTitle}`);
+//     console.log(`transactionUrl is ${transactionUrl}`);
+//     console.log(`transactionDate is ${transactionDate}`);
+
+//     if (
+//       new Date(transactionDate) - new Date(utilities.chosenDate) < 0 &&
+//       utilities.foundChosenDate.foundDate === false
+//     ) {
+//       utilities.foundChosenDate.finishDate = true;
+//     }
+//     if (transactionDate === utilities.chosenDate) {
+//       utilities.foundChosenDate.foundDate = true;
+
+//       utilities.dataResults.push({
+//         transactionTitle,
+//         transactionUrl,
+//         transactionDate,
+//         transactionImage,
+//       });
+//     } else if (
+//       new Date(transactionDate) - new Date(utilities.chosenDate) < 0 &&
+//       utilities.foundChosenDate.foundDate === true
+//     ) {
+//       utilities.foundChosenDate.finishDate = true;
+//     }
+//   });
+
+//   let = nextPageUrl = `https://www.biospace.com${
+//     $(".paginator__item a[rel=next]").attr("href") || ""
+//   }`;
+//   console.log(nextPageUrl);
+//   return nextPageUrl;
+// };
+
 module.exports = { businesswire, globenewswire, prnewswire };

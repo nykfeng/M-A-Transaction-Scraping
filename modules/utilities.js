@@ -15,7 +15,7 @@ const foundChosenDate = {
   finishDate: false,
 };
 const dataResults = []; //To store transaction title, url, date, image
-const transactionTile = []; // To store display tiel HTML
+const transactionTile = []; // To store display tile HTML
 let jsonFile = [];
 
 module.exports = {

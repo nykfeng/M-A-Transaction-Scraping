@@ -1,10 +1,89 @@
+:root {
+  --primary-color: #ff7800;
+  --secondary-color: #f58840;
+  --dark-color: #2e4c6d;
+  --gray-color: #cccbcb;
+  --white-color: #fff;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
 body {
-  margin: 5%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
   max-width: 80%;
 }
 
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+main {
+  width: 100%;
+}
+
+label,
+input {
+  margin: 1rem, 0;
+}
+
+.title {
+  display: block;
+  height: 5rem;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  text-align: center;
+  width: 100%;
+  font-size: 4rem;
+}
+
+button#download-button {
+  height: 2rem;
+  width: 8rem;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  border-style: none;
+  border-radius: 2rem;
+  cursor: pointer;
+}
+
+button#download-button:hover {
+  background-color: var(--secondary-color);
+}
+
+button#download-button:active {
+  transform: scale(0.95);
+}
+
+a {
+  text-decoration: none;
+  color: var(--dark-color);
+}
+
+.site-logo {
+  max-width: 63px;
+}
+.filter-green {
+  filter: invert(88%) sepia(89%) saturate(2476%) hue-rotate(86deg)
+    brightness(108%) contrast(119%);
+}
+
 .transaction-box {
-  border-style: outset;
+  border: 2px solid var(--gray-color);
+  border-bottom-color: var(--secondary-color);
+  border-right-color: var(--secondary-color);
+  border-right-width: 15px;
+  /* border-bottom-width: 5px; */
+  padding: 3px;
+  display: flex;
+  column-gap: 10px;
+  box-sizing: border-box;
 }
 
 .transaction {
@@ -12,19 +91,21 @@ body {
   min-width: 50px;
 }
 
-.banner {
-  max-width: 80%;
-}
-
 .transaction-title {
-  max-width: 700px;
+  max-width: 900px;
+  flex-grow: 1;
 }
 
 .transaction-date {
-  float: right;
+  flex-grow: 1;
+  text-align: end;
+  min-width: 91px;
 }
 
 .transaction-image {
-  width: 50px;
-  height: auto;
+  max-width: 60px;
+}
+
+.result-number {
+  margin: 1rem 0;
 }

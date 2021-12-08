@@ -8,10 +8,8 @@ const dataToExport = [
 window.addEventListener("load", function () {
   (async function () {
     try {
-      const response = await fetch(
-        `https://mnatransactionscraping.herokuapp.com/results.json`
-      );
-      // const response = await fetch(`http://localhost:8000/results.json`);
+      // `https://mnatransactionscraping.herokuapp.com/results.json`
+      const response = await fetch(`http://localhost:8000/results.json`);
       const data = await response.json();
 
       data.map((each) => {
