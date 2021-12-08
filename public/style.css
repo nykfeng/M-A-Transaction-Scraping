@@ -79,6 +79,7 @@ a {
   border-bottom-color: var(--secondary-color);
   border-right-color: var(--secondary-color);
   border-right-width: 15px;
+  border-radius: 10px;
   /* border-bottom-width: 5px; */
   padding: 3px;
   display: flex;
